@@ -1,10 +1,4 @@
-# calculations.py
-
 from data import *
-
-# -----------------------------
-# 1. SYSTEM DESIGN
-# -----------------------------
 
 def calculate_system_size(
     shadow_free_area,
@@ -48,11 +42,6 @@ def calculate_system_size(
 
     return num_panels, system_size_kw
 
-
-# -----------------------------
-# 2. GENERATION MODEL
-# -----------------------------
-
 def calculate_monthly_generation(system_size_kw, panel_type, orientation="south", tilt_factor=1.0):
     irradiance = SOLAR_RESOURCE["monthly_irradiance"]
 
@@ -80,10 +69,6 @@ def calculate_monthly_generation(system_size_kw, panel_type, orientation="south"
 def calculate_annual_generation(monthly_generation):
     return sum(monthly_generation.values())
 
-
-# -----------------------------
-# 3. CONSUMPTION MODEL
-# -----------------------------
 
 def calculate_appliance_load(num_ac=1, num_geyser=1, num_fridge=1):
     ac_load = num_ac * sum(APPLIANCE_DATA["ac"]) / 2
@@ -151,8 +136,6 @@ def calculate_monthly_financials(monthly_split, tariff):
 def calculate_ev_load(km_car=0, km_bike=0):
     car_rate = EV_DATA["typical_values"]["car"]
     bike_rate = EV_DATA["typical_values"]["bike"]
-
-    # monthly EV consumption
     car_energy_monthly = km_car * car_rate
     bike_energy_monthly = km_bike * bike_rate
 
@@ -170,10 +153,6 @@ def calculate_total_consumption(base_monthly_units, appliance_load, ev_load):
     return yearly_base + appliance_load + ev_load
 
 
-# -----------------------------
-# 4. ENERGY MATCHING
-# -----------------------------
-
 def calculate_energy_split(total_generation, total_consumption):
     day_ratio = LOAD_PROFILE["usage_split"]["day"]
 
@@ -181,11 +160,6 @@ def calculate_energy_split(total_generation, total_consumption):
     excess_energy = max(0, total_generation - usable_energy)
 
     return usable_energy, excess_energy
-
-
-# -----------------------------
-# 5. FINANCIAL MODEL
-# -----------------------------
 
 def get_average_tariff(monthly_units):
     for low, high, rate in TARIFF_DATA["slabs"]:
@@ -243,11 +217,6 @@ def calculate_roi(system_cost, annual_benefit):
         return None
     return system_cost / annual_benefit
 
-
-# -----------------------------
-# 7. LONG TERM MODEL
-# -----------------------------
-
 def project_20_years(annual_benefit, system_cost):
     inflation = sum(TARIFF_DATA["electricity_inflation"]) / 2
     degradation = sum(LOSS_FACTORS["degradation"]["annual"]) / 2
@@ -264,10 +233,6 @@ def project_20_years(annual_benefit, system_cost):
 
     return yearly_profit
 
-
-# -----------------------------
-# 8. EV + LIFESTYLE INSIGHTS
-# -----------------------------
 
 def calculate_ev_support(total_generation):
     car_rate = EV_DATA["typical_values"]["car"]
@@ -288,9 +253,6 @@ def generate_insights(
 ):
     insights = []
 
-    # -------------------------
-    # 1. Over / Under sizing
-    # -------------------------
     if total_generation > total_consumption * 1.2:
         insights.append("⚠️ Your system is oversized. A large portion of energy is being exported at lower rates.")
 
@@ -300,9 +262,6 @@ def generate_insights(
     else:
         insights.append("✅ Your system size is well matched to your consumption.")
 
-    # -------------------------
-    # 2. Self-consumption
-    # -------------------------
     if total_generation > 0:
         self_use_ratio = usable_energy / total_generation
 
@@ -312,9 +271,6 @@ def generate_insights(
         elif self_use_ratio > 0.8:
             insights.append("💡 High self-consumption. You are using most of your generated energy efficiently.")
 
-    # -------------------------
-    # 3. Payback analysis
-    # -------------------------
     if roi:
         if roi > 12:
             insights.append("⏳ Long payback period. Consider reducing system size or increasing consumption (e.g., EV usage).")
@@ -322,15 +278,10 @@ def generate_insights(
         elif roi < 6:
             insights.append("🚀 Excellent payback period. This is a strong financial investment.")
 
-    # -------------------------
-    # 4. Excess energy suggestion
-    # -------------------------
+
     if excess_energy > usable_energy:
         insights.append("🔋 Consider adding battery storage or increasing usage (EVs, appliances) to utilize excess energy.")
 
-    # -------------------------
-    # 5. EV opportunity
-    # -------------------------
     if excess_energy > 1000:
         insights.append("🚗 Your excess solar energy can significantly support EV charging and reduce fuel costs.")
 
