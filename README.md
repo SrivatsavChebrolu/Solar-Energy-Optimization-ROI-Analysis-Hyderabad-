@@ -21,7 +21,7 @@ This project builds an example **decision-support system** that simulates:
 
 ### ⚡ Energy Modeling
 
-* Monthly solar generation using Hyderabad-specific irradiance data
+* Monthly solar generation using Hyderabad-specific irradiance data collected from various Government and Media sources
 * Seasonal consumption modeling (summer peaks, monsoon dips)
 * Dynamic energy matching (used vs excess energy)
 
